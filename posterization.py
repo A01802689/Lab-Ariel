@@ -30,5 +30,5 @@ def poli(input_path:str, out_path:str)->None:
 
     
 if __name__ == '__main__':
-    poli('images/woman.png', 'images/posterization_output.png')
+    poli('images/velvet_underground.png', 'images/posterization_output.png')
     print('Done!')
