@@ -3,13 +3,13 @@
 #
 # Date: 25-Aug-2026
 # Authors:
-#           0A01803181 Alexander Mejia Tovar.
+#           A01803181 Alexander Mejia Tovar.
 #           A01801589 Pablo Alejandro Ortiz Montes.
 #----------------------------------------------------------
 
 from PIL import Image
 from typing import cast
-from rgb_types import RGBMatrix, RGBStream, RGBTuple
+from rgb_types import RGBMatrix
 
 
 SCALE: int = 2 
