@@ -11,53 +11,32 @@ from PIL import Image
 from typing import cast
 from rgb_types import RGBMatrix
 
-SCALE: int = 2
+def move_pixels(image: Image.Image, canvas_grid: RGBMatrix, delta: tuple[int, int]) -> RGBMatrix:
+    width, height = image.size
+    image_grid: RGBMatrix = cast(RGBMatrix, image.load())
+    for y in range(height):
+        for x in range(width):
+            canvas_grid[x + delta[0], y + delta[1]] = image_grid[x, y]
+    return canvas_grid
 
-rutas = ['images/tree.png','images/woman.png', 'images/snake.png', 'images/puppy.png']
-imagenesNuevas= []
-new_width: int = 0
-new_height: int = 0
+def tiling(images: list[Image.Image], deltas: list[tuple[int,int]]) -> Image.Image:
+    sub_width, sub_height = images[0].size
+    canvas: Image.Image = Image.new(mode='RGB', size=(2 * sub_width, 2 * sub_height))
+    canvas_grid: RGBMatrix = cast(RGBMatrix, canvas.load())
+    for image, delta in zip(images, deltas):
+        canvas_grid = move_pixels(image, canvas_grid, delta)
+    return canvas
 
-def shrink(output_path: str) -> None:
-    in_img: Image.Image
-    new_width: int = 0
-    new_height: int = 0
-    for i in rutas:
-            with Image.open(i) as in_img:
-                in_img = in_img.convert('RGB')
-                size: tuple[int, int] = in_img.size
-                in_grid: RGBMatrix = cast(RGBMatrix, in_img.load())
-            width: int
-            height: int
-            width, height = size
-            new_width: int = width // SCALE 
-            new_height: int = height // SCALE
-            out_img: Image.Image = Image.new('RGB', (new_width, new_height))
-            out_grid: RGBMatrix = cast(RGBMatrix, out_img.load())
-
-            for y in range(new_height):
-                for x in range(new_width):
-                    out_grid[x, y] = in_grid[x * SCALE, y * SCALE]
-            imagenesNuevas.append(out_grid)
-
-    lienzo_og: tuple[int, int] = (2 * new_width,  2 * new_height)
-    out_img: Image.Image = Image.new('RGB',lienzo_og )
-    OUTgrid_lienzo: RGBMatrix = cast(RGBMatrix, out_img.load())
-
-    for ind in range(len(imagenesNuevas)):
-        for y in range(new_height):
-            for x in range(new_width):
-                pixel = imagenesNuevas[ind][x, y] 
-                if ind == 0:
-                    OUTgrid_lienzo[x + 0,y + 0] = pixel
-                elif ind == 1:
-                    OUTgrid_lienzo[x + new_width,y + 0] = pixel
-                elif ind == 2:
-                    OUTgrid_lienzo[x + 0,y + new_height] = pixel
-                else:
-                    OUTgrid_lienzo[x + new_width,y + new_height] = pixel
-    out_img.save(output_path)
-
-if __name__ == '__main__':
-    shrink('images/tiling_output.png')
-    print('Done!') 
+if __name__ == "__main__":
+    image_paths: list[str] = [
+        './images/tree.png',
+        './images/puppy.png',
+        './images/snake.png',
+        './images/woman.png'
+    ]
+    with Image.open(image_paths[0]) as img1, Image.open(image_paths[1]) as img2, Image.open(image_paths[2]) as img3, Image.open(image_paths[3]) as img4:
+        images: list[Image.Image] = [img1, img2, img3, img4]
+        width, height = img1.size
+        deltas: list[tuple[int, int]] = [ (0,0), (width, 0), (0, height), (width, height) ]
+        output_image: Image.Image = tiling(images, deltas)
+        output_image.save('./images/tiling_output.png')
